@@ -49,7 +49,7 @@ class LazyValue:
     def evaluate(self) -> Primitive:
         if self.evaluated == True:
             return self.value
-        if self.fn:
+        if hasattr(self, 'fn'):
             # Eval values this depends on
             raw_params = [
                 p.evaluate() if isinstance(p, LazyValue) else p
@@ -64,7 +64,9 @@ class LazyValue:
         return self.value
 
     def invalidate(self):
-        self.evaluated = False
+        # only lazy values can be evaluated
+        if hasattr(self, 'fn'):
+            self.evaluated = False
         return self
 
     def __add__(self, value):
@@ -94,6 +96,12 @@ class LazyValue:
         else:
             self.value /= value
             return self
+    
+    def __gt__(self, value):
+        if isinstance(value, LazyValue):
+            raise Exception('Would return new LazyValue')
+        else:
+            return self.value > value if self.evaluated else self.evaluate() > value
 
     def __repr__(self):
         if hasattr(self, 'fn'):
