@@ -3,11 +3,11 @@ from lazy_value.models import LazyValue
 
 ERROR_EPSILON = 1e-6
 LEARNING_RATE = 1e-4
-REPETITIONS = 10
+REPETITIONS = 100
 HIDDEN_LAYER_1 = 12
 HIDDEN_LAYER_2 = 6
-SETS = 1000
-DEBUG = False
+SETS = 1
+DEBUG = True
 
 def relu(value):
     return value if value > 0 else 0.0
@@ -85,13 +85,14 @@ class Node:
     def backprop(self, output: float, error: float):
         if abs(error) > ERROR_EPSILON:
             self.final_value.invalidate()
+            input = self.input_agg.evaluate()
             self.input_agg.invalidate()
             # Update bias
             # error = (weight_k * error_j) * transfer_derivative(output)
             self_error = (self.bias * error) * self.lim_dfn(output)
             if abs(self_error) > ERROR_EPSILON: 
                     # weight = weight - learning_rate * error * input
-                bias_adjust = - LEARNING_RATE * self_error
+                bias_adjust = - LEARNING_RATE * self_error * 1.0
                 if DEBUG:
                     print(f"{self} backprop {error} self error {self_error}, adjusting bias {self.bias} + {bias_adjust}")
                 self.bias = self.bias + bias_adjust
@@ -104,10 +105,11 @@ class Node:
 
                     node_weight = self.input_weights[index].evaluate()
                     node_value = node.value().evaluate()
+                    node_input = node.input_agg.evaluate()
                     # error = (weight_k * error_j) * transfer_derivative(output)
-                    node_error = (node_weight * error) * self.lim_dfn(output)
+                    node_error = (node_weight * error) * self.lim_dfn(node_value)
                     if abs(node_error) > ERROR_EPSILON:
-                        node_weight_adjust = -(node_error * LEARNING_RATE * node_value)
+                        node_weight_adjust = -(LEARNING_RATE * node_error * node_input)
                         if DEBUG:
                             print(f"{self}-{node} error {error} adjusting weight {node_weight} + {node_weight_adjust}")
                         # weight = weight - learning_rate * error * input

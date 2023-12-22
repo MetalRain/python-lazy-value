@@ -16,3 +16,6 @@ I didn't quite get it working, I think I'm missing the derivates and gradient de
 
 How to Code a Neural Network with Backpropagation In Python (from scratch) by Jason Brownlee
 https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
+
+A Step by Step Backpropagation Example by Matt Mazur
+https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/

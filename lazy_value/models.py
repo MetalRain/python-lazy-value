@@ -57,17 +57,24 @@ class LazyValue:
             ]
             # Eval self
             self.value = self.fn(*raw_params)
-        self.evaluated = True
-        # Eval values that depend on this
-        for d in self.dependees:
-            d.evaluate()
-        return self.value
+        return self.resolve()
 
     def invalidate(self):
         # only lazy values can be evaluated
         if hasattr(self, 'fn'):
             self.evaluated = False
         return self
+    
+    def assign(self, value):
+        self.value = value
+        return self.resolve()
+    
+    def resolve(self):
+        self.evaluated = True
+        # Eval values that depend on this
+        for d in self.dependees:
+            d.evaluate()
+        return self.value
 
     def __add__(self, value):
         if isinstance(value, LazyValue):
